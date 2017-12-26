@@ -2,6 +2,13 @@ import numpy as np
 import operator
 import matplotlib.pyplot as plt
 
+
+# class KNN(object):
+
+    # def __init__(self):
+    #     super(self)
+
+    # @staticmethod
 def create_data_set():
     """创建样本数据"""
     group = np.array([[1.0, 1.1],
@@ -14,7 +21,7 @@ def create_data_set():
 
     return group, labels
 
-
+# @staticmethod
 def classify0(in_x, data_set, labels, k):
     """ @:param in_x : 用于分类的输入向量
         @:param data_set: 输入的训练样本
@@ -64,7 +71,7 @@ def classify0(in_x, data_set, labels, k):
     # 返回字典排序之后的结果
     return sorted_class_count[0][0]
 
-
+# @staticmethod
 def file2matrix(filename):
     """从文本文件中读取内容,转换成matrix"""
     try:
@@ -94,17 +101,103 @@ def file2matrix(filename):
     else:
         return return_mat, class_label_vector
 
-
-def show_scatter_diagram(mat_data1, mat_data2, labels):
+# @staticmethod
+def show_scatter_diagram(mat_data1, mat_data2, labels, title='', x_title='', y_title=''):
     """显示散点图"""
     figure = plt.figure()
-    ax = figure.add_subplot(111)
-    ax.scatter(mat_data1, mat_data2)
+    # ax = figure.add_subplot(111)
+    # ax.scatter(mat_data1, mat_data2)
+
+    plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
+    plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
+    # ax.title = title
+    # ax.x_title = x_title
+    # ax.y_title = y_title
+    labelArr = np.array(labels)
+
+    plt.scatter(mat_data1, mat_data2, 15.0 * labelArr, 15.0 * labelArr)
+    plt.title(title)
+    plt.xlabel(x_title)
+    plt.ylabel(y_title)
+
+    # plt.plot(X, C, color="blue", linewidth=2.5, linestyle="-", label="cosine")
     plt.show()
 
+# @staticmethod
+def show_scatter_diagram2(mat_data1, mat_data2, labels, title='', x_title='', y_title=''):
+    """优化之后的显示散点图函数"""
+    plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
+    plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
+    plt.figure(figsize=(10, 6), dpi=80)
+    axes = plt.subplot(111)
 
+    type1_x = []
+    type1_y = []
 
+    type2_x = []
+    type2_y = []
+
+    type3_x = []
+    type3_y = []
+
+    for i in range(len(labels)):
+        if labels[i] == 1:
+            type1_x.append(mat_data1[i])
+            type1_y.append(mat_data2[i])
+        elif labels[i] == 2:
+            type2_x.append(mat_data1[i])
+            type2_y.append(mat_data2[i])
+        elif labels[i] == 3:
+            type3_x.append(mat_data1[i])
+            type3_y.append(mat_data2[i])
+
+    type1 = axes.scatter(type1_x, type1_y, s=20, c='red')
+    type2 = axes.scatter(type2_x, type2_y, s=20, c='green')
+    type3 = axes.scatter(type3_x, type3_y, s=20, c='blue')
+    axes.legend((type1, type2, type3), (u'不喜欢', u'魅力一般', u'极具魅力'), loc=2)
+
+    plt.title(title)
+    plt.xlabel(x_title)
+    plt.ylabel(y_title)
+
+    plt.show()
+
+# @staticmethod
+def auto_norm(data_set):
+    """对矩阵数值进行归一化处理, 所有数值全部设置为0~1,或者 -1 ~ 1 之间"""
+
+    # matrix.min(0)  根据列获取最小值
+    min_vals = data_set.min(0)
+    # matrix.max(0)  根据列获取最大值
+    max_vals = data_set.max(0)
+
+    # 特征相减之后的 范围值
+    ranges = max_vals - min_vals
+
+    # 生成一个和样本数据集大小相同的矩阵
+    norm_data_set = np.zeros(np.shape(data_set))
+
+    # 获取矩阵有多少行
+    m = data_set.shape[0]
+
+    # 生成一个m行1列的用min_valus填充的矩阵
+    min_vals_mat = np.tile(min_vals, (m, 1))
+
+    # 样本数据集的每一个元素减去min_values
+    norm_data_set = data_set - min_vals_mat
+
+    # 生成一个m行1列的用ranges填充的矩阵
+    ranges_mat = np.tile(ranges, (m, 1))
+
+    # 相除
+    norm_data_set = norm_data_set / ranges_mat
+
+    return norm_data_set, ranges, min_vals
 
 # group, labels = create_data_set()
 # result = classify0([0, 0], group, labels, 3)
 # print(result)
+
+# mat, labels = file2matrix('datingTestSet2.txt')
+# show_scatter_diagram2(mat[:, 0], mat[:, 1], labels, title='约会对象分类', y_title='游戏时间百分比', x_title='飞行时长')
+# show_scatter_diagram(mat[:, 1], mat[:, 2], labels, title='约会对象分类', x_title='游戏时间百分比', y_title='冰激凌消耗公升数')

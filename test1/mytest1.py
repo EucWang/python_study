@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -26,10 +25,9 @@ dataMat = np.mat(dataSet).T
 # 将转置之后的矩阵 生成 两个List,
 plt.scatter(dataMat[0].tolist(), dataMat[1].tolist(), c='red', marker='o')
 
-x = np.linspace(-2, 2, 10)   # 返回-2 到2 之间的100个数
-y = 2.8 * x + 9     #
+x = np.linspace(-2, 2, 10)  # 返回-2 到2 之间的100个数
+y = 2.8 * x + 9  #
 print(x)
 
 plt.plot(x, y)
-
 plt.show()
