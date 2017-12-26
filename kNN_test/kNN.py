@@ -1,17 +1,19 @@
 import numpy as np
 import operator
+import matplotlib.pyplot as plt
 
 def create_data_set():
     """创建样本数据"""
     group = np.array([[1.0, 1.1],
-              [1.0, 1.0],
-              [0, 0],
-              [0, 0.1]])
+                      [1.0, 1.0],
+                      [0, 0],
+                      [0, 0.1]])
 
     # 数据对应的标签
     labels = ['A', 'A', 'B', 'B']
 
     return group, labels
+
 
 def classify0(in_x, data_set, labels, k):
     """ @:param in_x : 用于分类的输入向量
@@ -62,6 +64,47 @@ def classify0(in_x, data_set, labels, k):
     # 返回字典排序之后的结果
     return sorted_class_count[0][0]
 
-group, labels = create_data_set()
-result = classify0([0, 0], group, labels, 3)
-print(result)
+
+def file2matrix(filename):
+    """从文本文件中读取内容,转换成matrix"""
+    try:
+        with open(filename) as fr:
+            # 读取所有行
+            array_o_lines = fr.readlines()
+            # 行数
+            number_of_lines = len(array_o_lines)
+
+            # 构建一个全部为0 的矩阵
+            return_mat = np.zeros((number_of_lines, 3))
+            # 构建一个标签集
+            class_label_vector = []
+            # 索引
+            index = 0
+
+            # 遍历
+            for line in array_o_lines:
+                line = line.strip()  # 去掉文本中前后的空格
+                list_from_line = line.split('\t')  # 按照\t来分隔文本内容
+                return_mat[index, :] = list_from_line[0:3]  # 将前3个元素的内容传递给全为0的矩阵
+                class_label_vector.append((int(list_from_line[-1])))  # 将行的最后一个内容传递给标签集
+                index += 1
+    except BaseException as e:
+        print(e)
+        return None, None
+    else:
+        return return_mat, class_label_vector
+
+
+def show_scatter_diagram(mat_data1, mat_data2, labels):
+    """显示散点图"""
+    figure = plt.figure()
+    ax = figure.add_subplot(111)
+    ax.scatter(mat_data1, mat_data2)
+    plt.show()
+
+
+
+
+# group, labels = create_data_set()
+# result = classify0([0, 0], group, labels, 3)
+# print(result)
