@@ -22,6 +22,8 @@ def img2vector(filename):
 
 def load_digits_file_data(digits_dir):
     """从数据集中加载数据
+        接受的参数
+        @:param digits_dir : 数据所在的目录,根据这个目录加载改目录下的所有文件的数据
         返回三个字段
         @:return mat:    数据集, nums行1024列的矩阵
         @:return labels: 数据对应的标签
