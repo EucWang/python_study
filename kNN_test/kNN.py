@@ -3,12 +3,6 @@ import operator
 import matplotlib.pyplot as plt
 
 
-# class KNN(object):
-
-    # def __init__(self):
-    #     super(self)
-
-    # @staticmethod
 def create_data_set():
     """创建样本数据"""
     group = np.array([[1.0, 1.1],
@@ -21,7 +15,7 @@ def create_data_set():
 
     return group, labels
 
-# @staticmethod
+
 def classify0(in_x, data_set, labels, k):
     """ @:param in_x : 用于分类的输入向量
         @:param data_set: 输入的训练样本
@@ -71,7 +65,7 @@ def classify0(in_x, data_set, labels, k):
     # 返回字典排序之后的结果
     return sorted_class_count[0][0]
 
-# @staticmethod
+
 def file2matrix(filename):
     """从文本文件中读取内容,转换成matrix"""
     try:
@@ -101,7 +95,7 @@ def file2matrix(filename):
     else:
         return return_mat, class_label_vector
 
-# @staticmethod
+
 def show_scatter_diagram(mat_data1, mat_data2, labels, title='', x_title='', y_title=''):
     """显示散点图"""
     figure = plt.figure()
@@ -123,7 +117,7 @@ def show_scatter_diagram(mat_data1, mat_data2, labels, title='', x_title='', y_t
     # plt.plot(X, C, color="blue", linewidth=2.5, linestyle="-", label="cosine")
     plt.show()
 
-# @staticmethod
+
 def show_scatter_diagram2(mat_data1, mat_data2, labels, title='', x_title='', y_title=''):
     """优化之后的显示散点图函数"""
     plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
@@ -162,7 +156,7 @@ def show_scatter_diagram2(mat_data1, mat_data2, labels, title='', x_title='', y_
 
     plt.show()
 
-# @staticmethod
+
 def auto_norm(data_set):
     """对矩阵数值进行归一化处理, 所有数值全部设置为0~1,或者 -1 ~ 1 之间"""
 
