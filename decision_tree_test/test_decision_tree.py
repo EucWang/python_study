@@ -1,4 +1,4 @@
-import decision_tree_test.tree as dtree
+import decision_tree_test.decision_tree as dtree
 
 
 def create_data_set():
@@ -38,6 +38,14 @@ def test_best_feature():
     feature_index = dtree.choose_best_feature_to_split(data_set)
     print(feature_index)
 
+
+def test_create_desicion_tree():
+    data_set, labels = create_data_set()
+    my_tree = dtree.create_desicion_tree(data_set, labels)
+    print(my_tree)
+
+
 # test_tree()
 # test_split_data()
-test_best_feature()
+# test_best_feature()
+test_create_desicion_tree()
