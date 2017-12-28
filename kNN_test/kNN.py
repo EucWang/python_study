@@ -192,6 +192,6 @@ def auto_norm(data_set):
 # result = classify0([0, 0], group, labels, 3)
 # print(result)
 
-# mat, labels = file2matrix('datingTestSet2.txt')
-# show_scatter_diagram2(mat[:, 0], mat[:, 1], labels, title='约会对象分类', y_title='游戏时间百分比', x_title='飞行时长')
+mat, labels = file2matrix('datingTestSet2.txt')
+show_scatter_diagram2(mat[:, 0], mat[:, 1], labels, title='约会对象分类', y_title='游戏时间百分比', x_title='飞行时长')
 # show_scatter_diagram(mat[:, 1], mat[:, 2], labels, title='约会对象分类', x_title='游戏时间百分比', y_title='冰激凌消耗公升数')
