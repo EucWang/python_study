@@ -167,8 +167,6 @@ def plot_data():
             type6_x.append(x[i]/max_time)
             type6_y.append(z[i]/max_device_id_index)
 
-
-
     print('len(1x, 1y)', len(type1_x), len(type1_y), type1_x[-10:])
     print('len(2x, 2y)', len(type2_x), len(type2_y))
     print('len(3x, 3y)', len(type3_x), len(type3_y))
