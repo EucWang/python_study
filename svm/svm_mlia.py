@@ -80,7 +80,7 @@ def smo_simple(data_list_in, class_labels, c, toler, max_iter):
     # 数据集的维度, m行n列
     m, n = np.shape(data_mat)
     # alpha矩阵初始化, m行1列全1矩阵
-    alphas = np.mat(np.zeros(m, 1))
+    alphas = np.mat(np.zeros((m, 1)))
     # 当前迭代次数, max_iter是最大迭代次数
     index_iter = 0
 
@@ -117,10 +117,13 @@ def smo_simple(data_list_in, class_labels, c, toler, max_iter):
                     print('low == high')
                     continue
 
+                # eta 是alpha[j]的最优化修改量,
                 eta = 2.0 * data_mat[i, :] * data_mat[j, :].T - \
-                    data_mat[i, :] * data_mat[i, :].T - \
-                    data_mat[j, :] * data_mat[j, :].T
+                      data_mat[i, :] * data_mat[i, :].T - \
+                      data_mat[j, :] * data_mat[j, :].T
 
+                # 如果eta为0, 那就是说需要退出for循环的当前迭代过程.
+                # 该过程对真实SMO算法进行了简化处理,如果eta为0, 那么计算新的alpha[j]比较麻烦
                 if eta >= 0:
                     print('eta >= 0')
                     continue
@@ -134,22 +137,22 @@ def smo_simple(data_list_in, class_labels, c, toler, max_iter):
                     print('j not moving enough')
                     continue
 
-                # alpha_i 的修改方向相反
+                # alpha_i 的修改方向相反,但是和 alpha_j的改变的大小一样
                 alphas[i] += label_mat[j] * label_mat[i] * (alpha_j_old - alphas[j])
 
                 # 为两个alpha设置常数项b
                 b1 = b - ei - label_mat[i] * (alphas[i] - alpha_i_old) * data_mat[i, :] * data_mat[i, :].T - \
-                    label_mat[j] * (alphas[j] - alpha_j_old) * data_mat[i, :] * data_mat[j, :].T
+                     label_mat[j] * (alphas[j] - alpha_j_old) * data_mat[i, :] * data_mat[j, :].T
 
                 b2 = b - ej - label_mat[i] * (alphas[i] - alpha_i_old) * data_mat[i, :] * data_mat[j, :].T - \
-                    label_mat[j] * (alphas[j] - alpha_j_old) * data_mat[j, :] * data_mat[j, :].T
+                     label_mat[j] * (alphas[j] - alpha_j_old) * data_mat[j, :] * data_mat[j, :].T
 
                 if 0 < alphas[i] < c:
                     b = b1
                 elif 0 < alphas[j] < c:
                     b = b2
                 else:
-                    b = (b1 + b2)/2.0
+                    b = (b1 + b2) / 2.0
 
                 # 说明alpha已经发生了改变
                 alpha_pairs_changed += 1
@@ -168,28 +171,8 @@ def smo_simple(data_list_in, class_labels, c, toler, max_iter):
     return b, alphas
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# data_arr, label_arr = load_data_set('testSet.txt')
-# print(label_arr)
+data_arr, label_arr = load_data_set('testSet.txt')
+b_, alphas_ = smo_simple(data_arr, label_arr, 0.6, 0.001, 40)
+print('b', b_)
+# 对数据进行过滤, 只显示大于0的元素, 这个过滤只对numpy.ndarray类型有用
+print('alpha', alphas_[alphas_ > 0])
