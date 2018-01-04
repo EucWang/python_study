@@ -2,6 +2,7 @@
 程序清单6-1 SMO算法中的辅助函数
 """
 import numpy as np
+from svm.opt_struct import OptStruct
 
 
 def load_data_set(file_name):
@@ -22,15 +23,15 @@ def load_data_set(file_name):
     return data_mat, label_mat
 
 
-def select_j_rand(i, m):
+def select_j_rand(index_, m):
     """
     只要函数值不等于输入值i, 函数就会进行随机选择
-    :param i:  第一个alpha的下标
+    :param index_:  第一个alpha的下标
     :param m:  所有alpha的数目
     :return:
     """
-    j = i
-    while j == i:
+    j = index_
+    while j == index_:
         # 一直获取随机数,直到j != i, 跳出循环
         # 随机数的范围0~m
         j = int(np.random.uniform(0, m))
@@ -67,8 +68,8 @@ def smo_simple(data_list_in, class_labels, c, toler, max_iter):
 
     :param data_list_in:  输入训练数据集, list
     :param class_labels:  输入训练数据分类标签, list
-    :param c:             常数c
-    :param toler:         容错率
+    :param c:             常数c, 惩罚因子?
+    :param toler:         容错率, 松弛变量?
     :param max_iter:      取消前最大的循环次数
     :return:
     """
@@ -79,7 +80,7 @@ def smo_simple(data_list_in, class_labels, c, toler, max_iter):
     b = 0
     # 数据集的维度, m行n列
     m, n = np.shape(data_mat)
-    # alpha矩阵初始化, m行1列全1矩阵
+    # alpha矩阵初始化, m行1列全0矩阵, 拉格朗日乘子
     alphas = np.mat(np.zeros((m, 1)))
     # 当前迭代次数, max_iter是最大迭代次数
     index_iter = 0
@@ -90,12 +91,16 @@ def smo_simple(data_list_in, class_labels, c, toler, max_iter):
         for i in range(m):  # 第i个样本
 
             # 第i个样本的预测类别
+            # alpha的每一个元素和label_mat的每一个元素相乘,得到一个m行1列的矩阵,然后转置为1行m列的矩阵
+            # data_mat第i行的转置为m行1列的矩阵,然后和data_mat矩阵做矩阵乘积,得到一个m行1列的矩阵
+            # 然后两个矩阵乘积得到1个数值,然后加上b
             fxi = float(np.multiply(alphas, label_mat).T * (data_mat * data_mat[i, :].T)) + b
             # 误差
             ei = fxi - float(label_mat[i])
+
             # 是否可以继续优化
-            if ((label_mat[i] * ei < - toler) and (alphas[i] < c)) \
-                    or ((label_mat[i] * ei > toler) and (alphas[i] > 0)):
+            if ((label_mat[i] * ei < - toler) and (alphas[i] < c)) or \
+                    ((label_mat[i] * ei > toler) and (alphas[i] > 0)):
                 # 随机选择第j个样本
                 j = select_j_rand(i, m)
                 # 第j个样本的预测类别
@@ -171,8 +176,13 @@ def smo_simple(data_list_in, class_labels, c, toler, max_iter):
     return b, alphas
 
 
-data_arr, label_arr = load_data_set('testSet.txt')
-b_, alphas_ = smo_simple(data_arr, label_arr, 0.6, 0.001, 40)
-print('b', b_)
-# 对数据进行过滤, 只显示大于0的元素, 这个过滤只对numpy.ndarray类型有用
-print('alpha', alphas_[alphas_ > 0])
+# data_arr, label_arr = load_data_set('testSet.txt')
+# b_, alphas_ = smo_simple(data_arr, label_arr, 0.6, 0.001, 40)
+# print('b', b_)
+# # 对数据进行过滤, 只显示大于0的元素, 这个过滤只对numpy.ndarray类型有用
+# print('alpha', alphas_[alphas_ > 0])
+#
+# print('那些数据点是支撑向量:')
+# for i in range(100):
+#     if alphas_[i] > 0.0:
+#         print(data_arr[i], label_arr[i])
