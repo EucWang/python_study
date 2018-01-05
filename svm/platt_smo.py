@@ -10,7 +10,8 @@ def calc_ek(opt_s, k_index):
     :param k_index:
     :return:         计算误差值
     """
-    fxk = float(np.multiply(opt_s.alphas, opt_s.label_mat).T * (opt_s.x * opt_s.x[k_index, :].T)) + opt_s.b
+    # fxk = float(np.multiply(opt_s.alphas, opt_s.label_mat).T * (opt_s.x * opt_s.x[k_index, :].T)) + opt_s.b
+    fxk = float(np.multiply(opt_s.alphas, opt_s.label_mat).T * opt_s.k[:, k_index] + opt_s.b)
     ek = fxk - float(opt_s.label_mat[k_index])
     return ek
 
@@ -89,9 +90,10 @@ def inner_l(i_index, opt_s):
             print('low == high')
             return 0
 
-        eta = 2.0 * opt_s.x[i_index, :] * opt_s.x[j_index, :].T - \
-              opt_s.x[i_index, :] * opt_s.x[i_index, :].T - \
-              opt_s.x[j_index, :] * opt_s.x[j_index, :].T
+        # eta = 2.0 * opt_s.x[i_index, :] * opt_s.x[j_index, :].T - \
+        #       opt_s.x[i_index, :] * opt_s.x[i_index, :].T - \
+        #       opt_s.x[j_index, :] * opt_s.x[j_index, :].T
+        eta = 2.0 * opt_s.k[i_index, j_index] - opt_s.k[i_index, i_index] - opt_s.k[j_index, j_index]
 
         if eta >= 0:
             print('eta >= 0')
@@ -103,13 +105,17 @@ def inner_l(i_index, opt_s):
         # 在alpha改变时, 更新e_cache
         update_e_k(opt_s, j_index)
 
-        b1 = opt_s.b - ei - \
-            opt_s.label_mat[i_index] * (opt_s.alphas[i_index] - alpha_i_old) * opt_s.x[i_index, :] * opt_s.x[i_index, :].T - \
-            opt_s.label_mat[j_index] * (opt_s.alphas[j_index] - alpha_j_old) * opt_s.x[i_index, :] * opt_s.x[j_index, :].T
+        # b1 = opt_s.b - ei - \
+        #     opt_s.label_mat[i_index] * (opt_s.alphas[i_index] - alpha_i_old) * opt_s.x[i_index, :] * opt_s.x[i_index, :].T - \
+        #     opt_s.label_mat[j_index] * (opt_s.alphas[j_index] - alpha_j_old) * opt_s.x[i_index, :] * opt_s.x[j_index, :].T
+        b1 = opt_s.b - ei - opt_s.label_mat[i_index] * (opt_s.alphas[i_index] - alpha_i_old) * opt_s.k[i_index, i_index] - \
+            opt_s.label_mat[j_index] * (opt_s.alphas[j_index] - alpha_j_old) * opt_s.k[i_index, j_index]
 
-        b2 = opt_s.b - ej - \
-            opt_s.label_mat[i_index] * (opt_s.alphas[i_index] - alpha_i_old) * opt_s.x[i_index, :] * opt_s.x[j_index, :].T - \
-            opt_s.label_mat[j_index] * (opt_s.alphas[j_index] - alpha_j_old) * opt_s.x[j_index, :] * opt_s.x[j_index, :].T
+        # b2 = opt_s.b - ej - \
+        #     opt_s.label_mat[i_index] * (opt_s.alphas[i_index] - alpha_i_old) * opt_s.x[i_index, :] * opt_s.x[j_index, :].T - \
+        #     opt_s.label_mat[j_index] * (opt_s.alphas[j_index] - alpha_j_old) * opt_s.x[j_index, :] * opt_s.x[j_index, :].T
+        b2 = opt_s.b - ej - opt_s.label_mat[i_index] * (opt_s.label_mat[i_index] - alpha_i_old) * opt_s.k[i_index, j_index] - \
+            opt_s.label_mat[j_index] * (opt_s.alphas[j_index] - alpha_j_old) * opt_s.k[j_index, j_index]
 
         if (opt_s.alphas[i_index] > 0) and (opt_s.c > opt_s.alphas[i_index]):
             opt_s.b = b1
@@ -134,7 +140,7 @@ def platt_smo(data_mat_in, class_labels, c, toler, max_iter, k_tup=('lin', 0)):
     :param k_tup:
     :return:
     """
-    opt_strt = OptStruct(np.mat(data_mat_in), np.mat(class_labels).transpose(), c, toler)
+    opt_strt = OptStruct(np.mat(data_mat_in), np.mat(class_labels).transpose(), c, toler, k_tup)
     iter = 0
     entire_set = True
     alpha_pairs_changed = 0
@@ -183,10 +189,45 @@ def calc_ws(alphas, data_arr, class_labels):
     return w
 
 
-data_arr, label_arr = load_data_set('testSet.txt')
-b, alphas = platt_smo(data_arr, label_arr, 0.6, 0.001, 40)
-ws = calc_ws(alphas, data_arr, label_arr)
-print("ws", ws)
-for i in range(99):
-    prediction = (np.mat(data_arr)[i] * np.mat(ws) + b).getA()[0][0]
-    print('prediction:', prediction, "\tlabel%d:" % i, label_arr[i])
+# data_arr, label_arr = load_data_set('testSet.txt')
+# b, alphas = platt_smo(data_arr, label_arr, 0.6, 0.001, 40)
+# ws = calc_ws(alphas, data_arr, label_arr)
+# print("ws", ws)
+# for i in range(99):
+#     prediction = (np.mat(data_arr)[i] * np.mat(ws) + b).getA()[0][0]
+#     print('prediction:', prediction, "\tlabel%d:" % i, label_arr[i])
+
+
+def test_rbf(kl=0.1):
+    data_arr, label_arr = load_data_set('testSetRBF.txt')
+    b, alphas = platt_smo(data_arr, label_arr, 200, 0.0001, 10000, ('rbf', kl))
+    data_mat = np.mat(data_arr)
+    label_mat = np.mat(label_arr).transpose()
+    sv_i_nd = np.nonzero(alphas.A > 0)[0]
+    s_v_s = data_mat[sv_i_nd]
+    label_sv = label_mat[sv_i_nd]
+    print('there are %d support vectors' % np.shape(s_v_s)[0])
+    m, n = np.shape(data_mat)
+    err_count = 0
+    for i in range(m):
+        kernel_eval = OptStruct.kernel_trans(s_v_s, data_mat[i, :], ('rbf', kl))
+        predict = kernel_eval.T * np.multiply(label_sv, alphas[sv_i_nd]) + b
+        if np.sign(predict) != np.sign(label_arr[i]):
+            err_count += 1
+
+    print('the training error rate is : %f' % (float(err_count/m)))
+
+    data_arr, label_arr = load_data_set('testSetRBF2.txt')
+    err_count = 0
+    data_mat = np.mat(data_arr)
+    label_mat = np.mat(label_arr).transpose()
+    m, n = np.shape(data_mat)
+    for i in range(m):
+        kernel_eval = OptStruct.kernel_trans(s_v_s, data_mat[i, :], ('rbf', kl))
+        predict = kernel_eval.T * np.multiply(label_sv, alphas[sv_i_nd]) + b
+        if np.sign(predict) != np.sign(label_arr[i]):
+            err_count += 1
+    print('the test error rate is : %f' % (float(err_count/m)))
+
+
+test_rbf()
