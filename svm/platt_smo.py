@@ -230,4 +230,4 @@ def test_rbf(kl=0.1):
     print('the test error rate is : %f' % (float(err_count/m)))
 
 
-test_rbf()
+# test_rbf()

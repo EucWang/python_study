@@ -2,7 +2,6 @@
 程序清单6-1 SMO算法中的辅助函数
 """
 import numpy as np
-from svm.opt_struct import OptStruct
 
 
 def load_data_set(file_name):
