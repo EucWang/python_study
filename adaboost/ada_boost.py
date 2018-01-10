@@ -190,7 +190,7 @@ def adaboost_train_ds(data_arr, class_labels, num_it=40):
         if err_rate == 0.0:
             break
 
-    return weak_class_arr
+    return weak_class_arr, agg_class_est
 
 
 def ada_classify(dat_to_class, classifier_arr):
@@ -210,6 +210,56 @@ def ada_classify(dat_to_class, classifier_arr):
         print(agg_class_est)
 
     return np.sign(agg_class_est)
+
+
+def plot_roc(pred_strengths, class_labels):
+    """
+    ROC曲线的绘制以及AUC计算函数
+    :param pred_strengths:  numpy数组, 或者一个行向量组成的矩阵, 代表分类器的预测强度
+                           在分类器和训练函数将这些数值应用到sign()函数之前,他们就已经产生了
+    :param class_labels:   list, 样本数据实际的分类
+    :return:
+    """
+
+    # 绘制光标的位置
+    cur = (1.0, 1.0)
+
+    # y_sum 用于计算 AUC值:ROC曲线下面积
+    y_sum = 0.0
+
+    # 通过数组过滤, 获取真实正例的数目
+    num_pos_clas = sum(np.array(class_labels) == 1.0)
+
+    # y轴的步长, y轴标识真阳率/召回率: TP/(TP + FN)
+    y_step = 1/float(num_pos_clas)
+    # x轴的步长, x轴标识假阳率: FP/(FP + TN)
+    x_step = 1/float(len(class_labels) - num_pos_clas)
+
+    # 对 预测强度进行排序
+    sorted_indicies = pred_strengths.argsort()
+
+    fig = plt.figure()
+    fig.clf()
+    ax = plt.subplot(111)
+    for index in sorted_indicies.tolist()[0]:
+        if class_labels[index] == 1.0:
+            del_x = 0
+            del_y = y_step
+        else:
+            del_x = x_step
+            del_y = 0
+            y_sum += cur[1]
+
+        ax.plot([cur[0], cur[0] - del_x], [cur[1], cur[1] - del_y], c='b')
+        cur = (cur[0] - del_x, cur[1] - del_y)
+
+    ax.plot([0, 1], [0, 1], 'b--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC curve for AdaBoost Horse Colic Detection System')
+    ax.axis([0, 1, 0, 1])
+    plt.show()
+    print('the area under the curve is :', y_sum * x_step)
 
 
 # draw_test_data()
