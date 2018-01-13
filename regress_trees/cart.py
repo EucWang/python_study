@@ -42,6 +42,14 @@ def bin_split_data_set(data_set, feature_index, split_value):
     return mat0, mat1
 
 
+def reg_leaf(data_set):
+    return np.mean(data_set[:, -1])
+
+
+def reg_err(data_set):
+    return np.var(data_set[:, -1]) * np.shape(data_set)[0]
+
+
 def choose_best_split(data_set, leaf_type, err_type, opts):
     pass
 
